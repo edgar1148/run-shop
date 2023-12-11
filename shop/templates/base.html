@@ -52,6 +52,10 @@
     <title>Run-Shop</title>
 
     <style>
+      .form-layout {
+        border-radius: 20px;
+        width: 500px;
+    }
       .badge {
         padding-left: 9px;
         padding-right: 9px;
@@ -66,7 +70,7 @@
       }
       #lblCartCount {
           font-size: 12px;
-          background: #3c9700;
+          background: #0dcaf0;
           color: #fff;
           padding: 0 5px;
           vertical-align: top;
@@ -248,27 +252,46 @@
           </ul>
           <ul class="navbar-nav ms-auto">
             <li class="nav-item">
-              <a class="nav-link mx-2 text-info" href="{% url 'cart:cart-view' %}"
-                > <i class="fa fa-shopping-cart fa-lg" aria-hidden="true"> </i> Корзина</a
-              >
-              <span id="lblCartCount" class="badge badge-warning ">
+              <a class="nav-link mx-2 text-uppercase" href="{% url 'cart:cart-view' %}"
+                > <i class="fa fa-shopping-cart fa-lg" aria-hidden="true"> </i> Корзина
+                <span id="lblCartCount" class="badge badge-warning ">
 
-                {% with cart_qty=cart|length%}
-                  {% if cart_qty > 0 %}
-                  {{cart_qty}}
-                  {% else %}
-                    0
-                  {% endif %}
+                  {% with cart_qty=cart|length%}
+                    {% if cart_qty > 0 %}
+                    {{cart_qty}}
+                    {% else %}
+                      0
+                    {% endif %}
 
-                {% endwith %}
-              </span>
-              </a>
+                  {% endwith %}
+                </span>
+                </a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link mx-2 text-info" href="#"
-                ><i class="fa-solid fa-circle-user me-1"></i> Аккаунт</a
-              >
-            </li>
+            {% if request.user.is_authenticated %}
+
+              <li class="nav-item">
+                <a class="nav-link mx-2 text-uppercase" href="{% url 'account:dashboard' %}"
+                  ><i class="fa-solid fa-circle-user me-1"></i>@{{ user.username }} Профиль</a
+                >
+              </li>
+
+              <li class="nav-item">
+                <a class="nav-link mx-2 text-uppercase" href="{% url 'account:logout' %}"
+                  ><i class="fa-solid fa-circle-user me-1"></i> Выйти</a
+                >
+              </li>
+              {% else %}
+              <li class="nav-item">
+                <a class="nav-link mx-2 text-uppercase" href="{% url 'account:register' %}"
+                  ><i class="fa-solid fa-circle-user me-1"></i> Регистрация</a
+                >
+              </li>
+              <li class="nav-item">
+                <a class="nav-link mx-2 text-uppercase" href="{% url 'account:login' %}"
+                  ><i class="fa-solid fa-circle-user me-1"></i> Войти</a
+                >
+              </li>
+              {% endif %}
 
           </ul>
         </div>
