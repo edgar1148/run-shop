@@ -109,6 +109,8 @@ USE_I18N = True
 
 USE_TZ = True
 
+APPEND_SLASH = True
+
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'static'
