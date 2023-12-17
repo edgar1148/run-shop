@@ -70,30 +70,17 @@
                             </div>
 
                             <div class="col-6 text-end">
-
                                 <button type="button" id="add-button" value="{{product.id}}" class="btn btn-secondary btn-sm">
-
                                 Добавить в корзину 
-
                                 </button> 
-
-
                             </div>
-
                         </div>
-
                     </div>
-
                 </div>
-
             </div>
-
         </div>
-
     </main>
-
     <br>
-
 </div>
 
 <script>
@@ -112,8 +99,13 @@
             success: function(response){
                 document.getElementById('lblCartCount').textContent = response.qty
 
-            }, 
-            error: function(error){
+                const add_button = document.getElementById('add-button')
+                add_button.disabled = true
+                add_button.innerText = "Added to cart"
+                add_button.className = "btn btn-success btn-sm"
+
+            },
+            error: function (error) {
                 console.log(error)
             }
         })
