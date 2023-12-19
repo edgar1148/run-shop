@@ -7,6 +7,7 @@ from .cart import Cart
 
 
 def cart_view(request):
+    """Просмотр корзины"""
     cart = Cart(request)
     context = {
         'cart': cart
@@ -15,6 +16,7 @@ def cart_view(request):
 
 
 def cart_add(request):
+    """Добавление продукта в корзину"""
     cart = Cart(request)
 
     if request.POST.get('action') == 'post':
@@ -23,10 +25,12 @@ def cart_add(request):
         product = get_object_or_404(ProductProxy, id=product_id)
         cart.add(product=product, quantity=product_qty)
         cart_qty = cart.__len__()
-        response = JsonResponse({'qty': cart_qty, "product":product.title})
+        response = JsonResponse({'qty': cart_qty, "product": product.title})
         return response
 
+
 def cart_delete(request):
+    """Удаление продукта из корзины"""
     cart = Cart(request)
 
     if request.POST.get('action') == 'post':
@@ -37,7 +41,9 @@ def cart_delete(request):
         response = JsonResponse({'qty': cart_qty, 'total': cart_total})
         return response
 
+
 def cart_update(request):
+    """Обновление количества продукта в корзине"""
     cart = Cart(request)
 
     if request.POST.get('action') == 'post':

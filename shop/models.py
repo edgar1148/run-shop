@@ -1,16 +1,18 @@
-import random, string
+import random
+import string
 
 from django.db import models
-from django.db.models.query import QuerySet
 from django.utils.text import slugify
 from django.urls import reverse
 
 
 def rand_slug():
-    return ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
+    return ''.join(
+        random.choice(string.ascii_letters + string.digits) for _ in range(6))
 
 
 class Category(models.Model):
+    """Модель категории"""
     name = models.CharField(
         max_length=250,
         db_index=True,
@@ -40,7 +42,7 @@ class Category(models.Model):
         unique_together = (['slug', 'parent'])
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
-    
+
     def __str__(self):
         full_path = [self.name]
         k = self.parent
@@ -48,7 +50,7 @@ class Category(models.Model):
             full_path.append(k.name)
             k = k.parent
         return ' > '.join(full_path[::-1])
-    
+
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(rand_slug() + '-pickBetter' + self.name)
@@ -59,10 +61,12 @@ class Category(models.Model):
 
 
 class Product(models.Model):
+    """Модель товаров"""
     category = models.ForeignKey(
         Category,
         on_delete=models.CASCADE,
         related_name='products',
+        verbose_name='Категория',
     )
     title = models.CharField(
         max_length=250,
@@ -103,24 +107,23 @@ class Product(models.Model):
         verbose_name='Дата обновления',
     )
 
-
     class Meta:
         verbose_name = 'Продукт'
         verbose_name_plural = 'Продукты'
-        
+
     def __str__(self):
         return self.title
-        
+
     def get_absolute_url(self):
         return reverse("shop:products-detail", args=[str(self.slug)])
 
 
 class ProductManager(models.Manager):
     def get_queryset(self):
-        return super(ProductManager, self).get_queryset().filter(available=True)
+        return super(ProductManager, self).get_queryset().filter(
+            available=True)
 
 
-        
 class ProductProxy(Product):
 
     objects = ProductManager()

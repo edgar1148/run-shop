@@ -1,7 +1,9 @@
 import stripe
+
 from django.conf import settings
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+
 from yookassa import Configuration, Payment, Webhook
 from yookassa.domain.common import SecurityHelper
 from yookassa.domain.notification import (WebhookNotificationEventType,
@@ -15,6 +17,7 @@ STRIPE_WEBHOOK_SECRET = settings.STRIPE_WEBHOOK_SECRET
 
 @csrf_exempt
 def stripe_webhook(request):
+    """Stripe вебхук"""
     payload = request.body
     sig_header = request.META['HTTP_STRIPE_SIGNATURE']
     event = None
@@ -33,23 +36,23 @@ def stripe_webhook(request):
     # Handle the checkout.session.completed event
     if event['type'] == 'checkout.session.completed':
         session = event['data']['object']
-
         # Fulfill the purchase...
-        if session.mode ==  "payment" and session.payment_status == "paid":
+        if session.mode == "payment" and session.payment_status == "paid":
             try:
                 order_id = session.client_reference_id
             except Order.DoesNotExist:
-                return HttpResponse(status=404) 
+                return HttpResponse(status=404)
 
             send_order_confirmation.delay(order_id)
             order = Order.objects.get(id=order_id)
             order.paid = True
-            order.save() 
+            order.save()
 
     return HttpResponse(status=200)
 
 
 def get_client_ip(request):
+    """Получить IP клиента"""
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
     if x_forwarded_for:
         ip = x_forwarded_for.split(',')[0]
@@ -59,6 +62,7 @@ def get_client_ip(request):
 
 
 def yookassa_webhook(request):
+    """Вебхук Yookassa"""
     webhook = Webhook(request.body, request.headers['Content-Type'])
     event = webhook.parse()
 

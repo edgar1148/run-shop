@@ -4,33 +4,36 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, render
 from django_email_verification import send_email
 
-User = get_user_model()
-
 from .forms import LoginForm, UserCreateForm, UserUpdateForm
 
+User = get_user_model()
 
-#Register new user
+
 def register_user(request):
+    """Регистрация пользователя"""
     if request.method == 'POST':
         form = UserCreateForm(request.POST)
         if form.is_valid():
             form.save(commit=False)
-            user_email=form.cleaned_data.get('email')
-            user_username=form.cleaned_data.get('username')
-            user_password=form.cleaned_data.get('password1')
-            #Create new user
+            user_email = form.cleaned_data.get('email')
+            user_username = form.cleaned_data.get('username')
+            user_password = form.cleaned_data.get('password1')
             user = User.objects.create_user(
-                username=user_username, email=user_email, password=user_password
+                username=user_username,
+                email=user_email,
+                password=user_password
             )
             user.is_active = False
             send_email(user)
             return redirect('/account/email-verification-sent/')
     else:
         form = UserCreateForm()
-    return render(request, 'account/registration/register.html', {'form': form}) 
+    return render(
+        request, 'account/registration/register.html', {'form': form})
 
 
 def login_user(request):
+    """Аутентификация пользователя"""
     form = LoginForm()
     if request.user.is_authenticated:
         return redirect('shop:products')
@@ -52,6 +55,7 @@ def login_user(request):
 
 
 def logout_user(request):
+    """Выход из аккаунта"""
     session_keys = list(request.session.keys())
     for key in session_keys:
         if key == 'session_key':
@@ -68,7 +72,7 @@ def dashboard_user(request):
 
 @login_required(login_url='account:login')
 def profile_user(request):
-
+    """Редактирование профиля пользователя"""
     if request.method == 'POST':
         form = UserUpdateForm(request.POST, instance=request.user)
         if form.is_valid():
@@ -79,11 +83,13 @@ def profile_user(request):
     context = {
         'form': form
     }
-    return render(request, 'account/dashboard/profile-management.html', context)
+    return render(
+        request, 'account/dashboard/profile-management.html', context)
 
 
 @login_required(login_url='account:login')
 def delete_user(request):
+    """Удаление аккаунта"""
     user = User.objects.get(id=request.user.id)
     if request.method == 'POST':
         user.delete()
